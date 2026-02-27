@@ -17,8 +17,6 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
 
-  /* Only show transparent-to-solid on the home page (which has a full-bleed hero).
-     On sub-pages the header is always solid. */
   const isHome = pathname === "/"
   const solid = !isHome || scrolled
 
@@ -28,7 +26,6 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  /* Close mobile menu on route change */
   useEffect(() => {
     setMobileOpen(false)
   }, [pathname])
@@ -43,15 +40,15 @@ export function Header() {
           boxShadow: solid ? "0 1px 20px rgba(0,0,0,0.08)" : "none",
         }}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6 md:py-4 lg:px-8">
           <Link href="/" className="flex items-center gap-2">
             <Waves
-              className={`h-7 w-7 transition-colors duration-500 ${
+              className={`h-6 w-6 md:h-7 md:w-7 transition-colors duration-500 ${
                 solid ? "text-primary" : "text-primary-foreground"
               }`}
             />
             <span
-              className={`text-xl font-bold tracking-tight transition-colors duration-500 ${
+              className={`text-lg md:text-xl font-bold tracking-tight transition-colors duration-500 ${
                 solid ? "text-foreground" : "text-primary-foreground"
               }`}
             >
@@ -59,15 +56,15 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden items-center gap-8 lg:flex">
+          {/* Nav - visible from md (768px) upwards */}
+          <nav className="hidden items-center gap-4 md:flex lg:gap-6">
             {navLinks.map((link) => {
               const isActive = pathname === link.href
               return (
                 <Link
                   key={link.label}
                   href={link.href}
-                  className={`text-sm font-medium transition-colors duration-500 hover:opacity-80 ${
+                  className={`relative text-sm font-medium transition-colors duration-500 hover:opacity-80 ${
                     solid ? "text-foreground" : "text-primary-foreground"
                   } ${isActive ? "opacity-100" : ""}`}
                 >
@@ -75,7 +72,7 @@ export function Header() {
                   {isActive && (
                     <motion.span
                       layoutId="nav-underline"
-                      className={`block h-0.5 mt-0.5 rounded-full ${
+                      className={`absolute -bottom-1 left-0 right-0 h-0.5 rounded-full ${
                         solid ? "bg-primary" : "bg-primary-foreground"
                       }`}
                     />
@@ -85,7 +82,7 @@ export function Header() {
             })}
             <Link
               href="/contact"
-              className={`rounded-lg px-5 py-2.5 text-sm font-semibold transition-all duration-500 ${
+              className={`ml-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-500 lg:px-5 lg:py-2.5 ${
                 solid
                   ? "bg-primary text-primary-foreground hover:bg-primary/90"
                   : "bg-primary-foreground/20 text-primary-foreground backdrop-blur-sm hover:bg-primary-foreground/30"
@@ -95,10 +92,10 @@ export function Header() {
             </Link>
           </nav>
 
-          {/* Mobile Toggle */}
+          {/* Mobile Toggle - only below md (768px) */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className={`lg:hidden transition-colors duration-500 ${
+            className={`md:hidden transition-colors duration-500 ${
               solid ? "text-foreground" : "text-primary-foreground"
             }`}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
@@ -108,36 +105,64 @@ export function Header() {
         </div>
       </motion.header>
 
-      {/* Mobile Menu */}
+      {/* Mobile side-drawer - only below md (768px) */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-background/98 pt-20 backdrop-blur-md lg:hidden"
-          >
-            <nav className="flex flex-col items-center gap-6 p-8">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className={`text-lg font-medium transition-colors ${
-                    pathname === link.href ? "text-primary" : "text-foreground"
-                  }`}
+          <>
+            {/* Semi-transparent backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="fixed inset-0 z-30 bg-foreground/30 backdrop-blur-[3px] md:hidden"
+              onClick={() => setMobileOpen(false)}
+              aria-hidden
+            />
+            {/* Right-side drawer (~2/3 width max 280px) */}
+            <motion.aside
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
+              className="fixed right-0 top-0 bottom-0 z-40 flex w-2/3 max-w-[280px] flex-col border-l border-border bg-background shadow-2xl md:hidden"
+            >
+              {/* Drawer header */}
+              <div className="flex items-center justify-between border-b border-border px-5 py-4">
+                <span className="text-sm font-semibold text-foreground">Menu</span>
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-md p-1 text-muted-foreground hover:text-foreground"
+                  aria-label="Close menu"
                 >
-                  {link.label}
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Drawer links */}
+              <nav className="flex flex-1 flex-col px-4 py-3">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    className={`rounded-lg px-3 py-2.5 text-[15px] font-medium transition-colors ${
+                      pathname === link.href
+                        ? "bg-primary/10 text-primary"
+                        : "text-foreground hover:bg-secondary"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                <Link
+                  href="/contact"
+                  className="mt-3 rounded-lg bg-primary px-5 py-2.5 text-center text-sm font-semibold text-primary-foreground"
+                >
+                  Get a Quote
                 </Link>
-              ))}
-              <Link
-                href="/contact"
-                className="mt-4 rounded-lg bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground"
-              >
-                Get a Quote
-              </Link>
-            </nav>
-          </motion.div>
+              </nav>
+            </motion.aside>
+          </>
         )}
       </AnimatePresence>
     </>

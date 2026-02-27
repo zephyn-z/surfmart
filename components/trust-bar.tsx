@@ -26,7 +26,7 @@ export function TrustBar() {
   const isInView = useInView(sectionRef, { once: true, amount: 0.3 })
 
   return (
-    <section id="trust" ref={sectionRef} className="relative overflow-hidden bg-background py-20 lg:py-28">
+    <section id="trust" ref={sectionRef} className="relative overflow-hidden bg-background py-16 sm:py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
@@ -47,35 +47,38 @@ export function TrustBar() {
           </p>
         </motion.div>
 
-        {/* Scrolling Trust Icons */}
-        <div className="relative mb-16">
-          <div className="absolute left-0 top-0 bottom-0 z-10 w-20 bg-gradient-to-r from-background to-transparent" />
-          <div className="absolute right-0 top-0 bottom-0 z-10 w-20 bg-gradient-to-l from-background to-transparent" />
+        {/* Scrolling Trust Icons - touch-scrollable fallback on mobile */}
+        <div className="relative mb-10 sm:mb-16">
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 z-10 w-10 bg-gradient-to-r from-background to-transparent sm:w-20" />
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 z-10 w-10 bg-gradient-to-l from-background to-transparent sm:w-20" />
 
-          <motion.div
-            className="flex gap-6"
-            animate={{ x: [0, -800] }}
-            transition={{
-              x: { repeat: Infinity, repeatType: "loop", duration: 25, ease: "linear" },
-            }}
-          >
-            {[...trustItems, ...trustItems, ...trustItems].map((item, index) => {
-              const Icon = item.icon
-              return (
-                <div
-                  key={index}
-                  className="flex shrink-0 items-center gap-3 rounded-xl border border-border bg-card px-6 py-4 shadow-sm"
-                >
-                  <div className="rounded-lg bg-primary/10 p-2.5">
-                    <Icon className="h-5 w-5 text-primary" />
+          {/* Outer wrapper allows horizontal touch-scroll on mobile */}
+          <div className="overflow-x-auto scrollbar-none touch-pan-x">
+            <motion.div
+              className="flex gap-4 sm:gap-6"
+              animate={{ x: [0, -800] }}
+              transition={{
+                x: { repeat: Infinity, repeatType: "loop", duration: 25, ease: "linear" },
+              }}
+            >
+              {[...trustItems, ...trustItems, ...trustItems].map((item, index) => {
+                const Icon = item.icon
+                return (
+                  <div
+                    key={index}
+                    className="flex shrink-0 items-center gap-2.5 rounded-xl border border-border bg-card px-4 py-3 shadow-sm sm:gap-3 sm:px-6 sm:py-4"
+                  >
+                    <div className="rounded-lg bg-primary/10 p-2 sm:p-2.5">
+                      <Icon className="h-4 w-4 min-h-4 min-w-4 text-primary sm:h-5 sm:w-5" />
+                    </div>
+                    <span className="whitespace-nowrap text-xs font-medium text-foreground sm:text-sm">
+                      {item.label}
+                    </span>
                   </div>
-                  <span className="whitespace-nowrap text-sm font-medium text-foreground">
-                    {item.label}
-                  </span>
-                </div>
-              )
-            })}
-          </motion.div>
+                )
+              })}
+            </motion.div>
+          </div>
         </div>
 
         {/* Factory showcase */}
@@ -111,7 +114,7 @@ export function TrustBar() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-12 grid grid-cols-2 gap-6 md:grid-cols-4"
+          className="mt-8 grid grid-cols-2 gap-4 sm:mt-12 sm:gap-6 md:grid-cols-4"
         >
           {[
             { value: "200+", label: "Units Delivered" },
@@ -121,9 +124,9 @@ export function TrustBar() {
           ].map((stat) => (
             <div
               key={stat.label}
-              className="rounded-xl border border-border bg-card p-6 text-center shadow-sm"
+              className="rounded-xl border border-border bg-card p-4 text-center shadow-sm sm:p-6"
             >
-              <p className="text-3xl font-bold text-primary">{stat.value}</p>
+              <p className="text-2xl font-bold text-primary sm:text-3xl">{stat.value}</p>
               <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
             </div>
           ))}

@@ -62,15 +62,15 @@ export function Solutions() {
     <section
       id="solutions"
       ref={sectionRef}
-      className="relative bg-secondary py-24 lg:py-32"
+      className="relative bg-secondary py-14 sm:py-24 lg:py-32"
     >
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="mb-16 text-center"
+          className="mb-8 text-center sm:mb-16"
         >
           <span className="mb-4 inline-block rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
             Segment Solutions
@@ -89,7 +89,7 @@ export function Solutions() {
           variants={containerVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
-          className="grid gap-6 md:grid-cols-2 lg:grid-cols-4"
+          className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4"
         >
           {segments.map((segment) => {
             const Icon = segment.icon
@@ -97,10 +97,10 @@ export function Solutions() {
               <motion.div
                 key={segment.title}
                 variants={cardVariants}
-                className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-500 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1"
+                className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-500 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 sm:rounded-2xl"
               >
                 {/* Image */}
-                <div className="relative aspect-[4/3] overflow-hidden">
+                <div className="relative aspect-[3/2] overflow-hidden sm:aspect-[4/3]">
                   <Image
                     src={segment.image}
                     alt={segment.title}
@@ -110,32 +110,32 @@ export function Solutions() {
                   <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
 
                   {/* Stat badge */}
-                  <div className="absolute bottom-3 left-4">
-                    <span className="text-2xl font-bold text-background">
+                  <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-4">
+                    <span className="text-lg font-bold text-background sm:text-2xl">
                       {segment.stat}
                     </span>
-                    <p className="text-xs text-background/80">
+                    <p className="text-[10px] text-background/80 sm:text-xs">
                       {segment.statLabel}
                     </p>
                   </div>
 
                   {/* Arrow */}
-                  <div className="absolute right-3 top-3 rounded-full bg-background/20 p-2 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
-                    <ArrowUpRight className="h-4 w-4 text-background" />
+                  <div className="absolute right-2 top-2 rounded-full bg-background/20 p-1.5 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 sm:right-3 sm:top-3 sm:p-2">
+                    <ArrowUpRight className="h-3 w-3 text-background sm:h-4 sm:w-4" />
                   </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-5">
-                  <div className="mb-3 flex items-center gap-2">
-                    <div className="rounded-lg bg-primary/10 p-2">
-                      <Icon className="h-4 w-4 text-primary" />
+                <div className="p-3 sm:p-5">
+                  <div className="mb-1.5 flex items-center gap-1.5 sm:mb-3 sm:gap-2">
+                    <div className="rounded-md bg-primary/10 p-1.5 sm:rounded-lg sm:p-2">
+                      <Icon className="h-3 w-3 text-primary sm:h-4 sm:w-4" />
                     </div>
-                    <h3 className="font-semibold text-foreground">
+                    <h3 className="text-xs font-semibold text-foreground sm:text-base">
                       {segment.title}
                     </h3>
                   </div>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
+                  <p className="hidden text-sm leading-relaxed text-muted-foreground sm:block">
                     {segment.description}
                   </p>
                 </div>
