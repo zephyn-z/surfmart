@@ -69,7 +69,7 @@ export function Header() {
 
           </Link>
 
-          {/* 桌面端导航 - md 及以上显示 */}
+
           <nav className="hidden items-center gap-4 md:flex lg:gap-6">
             {navLinks.map((link) => {
               const isActive = pathname === link.href
