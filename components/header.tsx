@@ -33,30 +33,43 @@ export function Header() {
   return (
     <>
       <motion.header
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
+        className="fixed top-0 left-0 right-0 z-50"  
         initial={false}
         animate={{
-          backgroundColor: solid ? "rgba(255,255,255,0.97)" : "rgba(0,0,0,0)",
-          boxShadow: solid ? "0 1px 20px rgba(0,0,0,0.08)" : "none",
+          // 1. 原有背景/阴影
+          backgroundColor: solid ? "rgba(4, 12, 24, 0.97)" : "rgba(0,0,0,0)",
+          boxShadow: solid ? "0 1px 20px rgba(59, 130, 246, 0.15)" : "none",
+          // 2. 新增直观的动画属性（核心：让效果可见）
+          y: solid ? 0 : -5,          // 未滚动时向上偏移5px，滚动后回到原位
+          scale: solid ? 1 : 0.98,    // 未滚动时轻微缩小，滚动后恢复原大小
+          opacity: solid ? 1 : 0.95,  // 未滚动时轻微透明，滚动后完全不透明
+        }}
+        // 3. 过渡效果（弹性/晃动，现在能直观感受到了）
+        transition={{
+          type: "spring",  // 弹性类型（核心：让动画有晃动/回弹感）
+          stiffness: 400,  // 弹性强度（越大越猛，建议 300-500）
+          damping: 17,     // 阻尼（越小晃得越久，建议 15-20）
+          mass: 0.5        // 质量（越小越轻盈，建议 0.3-0.8）
         }}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6 md:py-4 lg:px-8">
           <Link href="/" className="flex items-center gap-2">
-            <Waves
-              className={`h-6 w-6 md:h-7 md:w-7 transition-colors duration-500 ${
-                solid ? "text-primary" : "text-primary-foreground"
-              }`}
+            <img
+              src="/logo-800x400.png"
+              alt="SurfSmart Logo"
+              className={`
+                h-auto
+                w-40 md:w-50
+                transition-colors duration-200
+                object-contain
+                ${solid ? "text-primary" : "text-primary-foreground"}
+              `}
+              aria-hidden="true"
             />
-            <span
-              className={`text-lg md:text-xl font-bold tracking-tight transition-colors duration-500 ${
-                solid ? "text-foreground" : "text-primary-foreground"
-              }`}
-            >
-              SurfSmart
-            </span>
+
           </Link>
 
-          {/* Nav - visible from md (768px) upwards */}
+          {/* 桌面端导航 - md 及以上显示 */}
           <nav className="hidden items-center gap-4 md:flex lg:gap-6">
             {navLinks.map((link) => {
               const isActive = pathname === link.href
@@ -64,8 +77,8 @@ export function Header() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className={`relative text-sm font-medium transition-colors duration-500 hover:opacity-80 ${
-                    solid ? "text-foreground" : "text-primary-foreground"
+                  className={`relative text-sm font-medium transition-colors duration-200 hover:opacity-80 ${
+                    solid ? "text-white" : "text-primary-foreground"
                   } ${isActive ? "opacity-100" : ""}`}
                 >
                   {link.label}
@@ -82,7 +95,7 @@ export function Header() {
             })}
             <Link
               href="/contact"
-              className={`ml-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-500 lg:px-5 lg:py-2.5 ${
+              className={`ml-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 lg:px-5 lg:py-2.5 ${
                 solid
                   ? "bg-primary text-primary-foreground hover:bg-primary/90"
                   : "bg-primary-foreground/20 text-primary-foreground backdrop-blur-sm hover:bg-primary-foreground/30"
@@ -95,9 +108,7 @@ export function Header() {
           {/* Mobile Toggle - only below md (768px) */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className={`md:hidden transition-colors duration-500 ${
-              solid ? "text-foreground" : "text-primary-foreground"
-            }`}
+            className="md:hidden transition-colors duration-200 text-white"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
           >
             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}

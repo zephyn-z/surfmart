@@ -1,6 +1,6 @@
 "use client"
 
-import { Waves, Mail, Phone, MapPin, Linkedin, Youtube, MessageCircle } from "lucide-react"
+import { Mail, Phone, MapPin, Linkedin, Youtube, MessageCircle } from "lucide-react"
 
 export function SiteFooter() {
   return (
@@ -9,8 +9,12 @@ export function SiteFooter() {
         {/* Centered brand + contact */}
         <div className="flex flex-col items-center text-center">
           <div className="mb-3 flex items-center gap-2">
-            <Waves className="h-6 w-6 text-primary" />
-            <span className="text-lg font-bold tracking-tight">SurfSmart</span>
+            <img 
+              src="/logo-800x400.png" 
+              alt="SurfSmart Logo" 
+              className="h-24 w-auto"  
+            />
+
           </div>
           <p className="mb-4 max-w-md text-sm leading-relaxed text-background/60">
             Professional turn-key surfing solutions from China. We design, manufacture, and install premium wave machines worldwide.
