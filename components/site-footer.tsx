@@ -10,7 +10,7 @@ export function SiteFooter() {
         <div className="flex flex-col items-center text-center">
           <div className="mb-3 flex items-center gap-2">
             <img 
-              src="/logo-800x400.png" 
+              src="/icon-800x400.png" 
               alt="SurfSmart Logo" 
               className="h-24 w-auto"  
             />
