@@ -55,7 +55,7 @@ export function Header() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6 md:py-4 lg:px-8">
           <Link href="/" className="flex items-center gap-2">
             <img
-              src="/logo-800x400.png"
+              src="/icon-800x400.png"
               alt="SurfSmart Logo"
               className={`
                 h-auto
