@@ -6,14 +6,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { ContactForm } from "@/components/contact-form"
-import {
-  Mail,
-  Phone,
-  MapPin,
-  MessageCircle,
-  Instagram,
-  MessageSquare,
-} from "lucide-react"
+import { SocialLinks } from "@/components/social-links"
+import { Mail, Phone, MapPin } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Contact Us - SurfSmart",
@@ -128,34 +122,7 @@ export default function ContactPage() {
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <a
-                  href="https://wa.me/8653288888888"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="WhatsApp"
-                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
-                >
-                  <MessageCircle className="h-5 w-5" />
-                </a>
-                <a
-                  href="https://instagram.com/surfsmart"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
-                >
-                  <Instagram className="h-5 w-5" />
-                </a>
-                <a
-                  href="#"
-                  aria-label="WeChat"
-                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
-                >
-                  <MessageSquare className="h-5 w-5" />
-                </a>
-                <span className="ml-2 text-xs text-muted-foreground">
-                  WeChat: surfsmart_official
-                </span>
+                <SocialLinks variant="contact" />
               </div>
             </div>
           </section>
