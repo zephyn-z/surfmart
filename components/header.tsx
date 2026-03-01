@@ -93,16 +93,7 @@ export function Header() {
                 </Link>
               )
             })}
-            <Link
-              href="/contact"
-              className={`ml-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 lg:px-5 lg:py-2.5 ${
-                solid
-                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                  : "bg-primary-foreground/20 text-primary-foreground backdrop-blur-sm hover:bg-primary-foreground/30"
-              }`}
-            >
-              Get a Quote
-            </Link>
+
           </nav>
 
           {/* Mobile Toggle - only below md (768px) */}
@@ -136,7 +127,7 @@ export function Header() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
-              className="fixed right-0 top-0 bottom-0 z-40 flex w-2/3 max-w-[280px] flex-col border-l border-border bg-background shadow-2xl md:hidden"
+              className="fixed right-0 top-16 bottom-0 z-40 flex w-2/3 max-w-[280px] flex-col border-l border-border bg-background shadow-2xl md:hidden"
             >
               {/* Drawer header */}
               <div className="flex items-center justify-between border-b border-border px-5 py-4">
@@ -165,12 +156,7 @@ export function Header() {
                     {link.label}
                   </Link>
                 ))}
-                <Link
-                  href="/contact"
-                  className="mt-3 rounded-lg bg-primary px-5 py-2.5 text-center text-sm font-semibold text-primary-foreground"
-                >
-                  Get a Quote
-                </Link>
+
               </nav>
             </motion.aside>
           </>

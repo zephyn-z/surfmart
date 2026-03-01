@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
-import Image from "next/image"
-import { MapPin } from "lucide-react"
+import { ProjectsMap } from "@/components/projects-map"
 
 export const metadata: Metadata = {
   title: "Global Projects - SurfSmart",
@@ -8,83 +7,89 @@ export const metadata: Metadata = {
     "Explore SurfSmart surfing machine installations across resorts, clubs, water parks, and private villas worldwide.",
 }
 
-const projects = [
+/**
+ * 项目案例数据结构
+ * 素材路径指引：请在 public/images/projects/ 下为每个项目创建子文件夹，例如：
+ * - public/images/projects/saudi/  (沙特)
+ * - public/images/projects/uae/   (阿联酋)
+ * - public/images/projects/china/ (中国)
+ * - public/images/projects/australia/ (澳大利亚)
+ * - public/images/projects/usa/   (美国)
+ * 每个子文件夹内放置该项目的现场照片或视频，如 1.jpg, 2.jpg, demo.mp4 等
+ */
+export const projectsData = [
   {
-    title: "Bali Wave Resort",
-    location: "Bali, Indonesia",
-    image: "/images/segment-resort.jpg",
-    tag: "Resort",
+    id: "sa",
+    name: "Riyadh Surf Resort",
+    location: "Saudi Arabia",
+    description:
+      "奢华度假村冲浪池项目，采用 WavePro X1 专业级造浪设备，打造中东地区顶级冲浪体验。项目包含室内恒温冲浪池、专业教练区及观景休息区，为度假村宾客提供全年无休的冲浪乐趣。",
+    coordinates: { x: 62, y: 36.8 },
+    media: [
+      "/images/model-1.jpg",
+      "/images/model-2.jpg",
+      "/images/model-3.jpg",
+      "/images/model-4.jpg",
+    ],
   },
   {
-    title: "Shanghai Surf Club",
-    location: "Shanghai, China",
-    image: "/images/segment-club.jpg",
-    tag: "Club",
+    id: "ae",
+    name: "Dubai Aqua Park",
+    location: "UAE",
+    description:
+      "迪拜水上乐园商业级冲浪设备标杆项目。TideForce M3 高容量造浪系统为乐园带来稳定持续的波浪，配合专业安全设施与救生团队，日均接待量超 2000 人次，成为中东水上娱乐新地标。",
+    coordinates: { x: 64.8, y: 39.3 },
+    media: [
+      "/images/model-2.jpg",
+      "/images/model-3.jpg",
+      "/images/segment-waterpark.jpg",
+      "/images/model-1.jpg",
+    ],
   },
   {
-    title: "Dubai Aqua Park",
-    location: "Dubai, UAE",
-    image: "/images/segment-waterpark.jpg",
-    tag: "Water Park",
+    id: "cn",
+    name: "Shanghai Surf Club",
+    location: "China",
+    description:
+      "上海都市冲浪俱乐部，室内冲浪新地标。FlowRider S2 紧凑型站立式造浪机完美适配城市商业空间，为都市白领提供便捷的冲浪健身与社交体验，开业以来已成为沪上运动达人的打卡圣地。",
+    coordinates: { x: 79, y: 42 },
+    media: [
+      "/images/model-3.jpg",
+      "/images/segment-club.jpg",
+      "/images/model-1.jpg",
+      "/images/model-4.jpg",
+    ],
   },
   {
-    title: "Maldives Private Villa",
-    location: "Maldives",
-    image: "/images/segment-villa.jpg",
-    tag: "Villa",
+    id: "au",
+    name: "Gold Coast Wave Pool",
+    location: "Australia",
+    description:
+      "黄金海岸冲浪池项目，专业级训练与娱乐兼备。配备多档位可调波浪系统，既可满足职业冲浪手的高强度训练需求，也可为家庭游客提供温和的初学体验，与黄金海岸天然海滩形成完美互补。",
+    coordinates: { x: 87.5, y: 81.7 },
+    media: [
+      "/images/model-4.jpg",
+      "/images/segment-resort.jpg",
+      "/images/model-2.jpg",
+      "/images/model-3.jpg",
+    ],
+  },
+  {
+    id: "us",
+    name: "California Surf Academy",
+    location: "USA",
+    description:
+      "加州冲浪学院职业冲浪手训练基地。采用顶级造浪设备，可模拟多种海浪形态，为职业选手提供精准的训练环境。同时开设青少年冲浪课程，培养下一代冲浪人才，传承加州冲浪文化。",
+    coordinates: { x: 21, y: 40.8 },
+    media: [
+      "/images/segment-resort.jpg",
+      "/images/model-1.jpg",
+      "/images/model-4.jpg",
+      "/images/segment-villa.jpg",
+    ],
   },
 ]
 
 export default function ProjectsPage() {
-  return (
-    <main className="pt-28 pb-20">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        {/* Page Header */}
-        <div className="mb-16 max-w-2xl">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
-            Global Projects
-          </p>
-          <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground lg:text-5xl text-balance">
-            Trusted by Clients in 5+ Countries
-          </h1>
-          <p className="text-lg leading-relaxed text-muted-foreground">
-            From luxury island resorts to urban fitness clubs, our surfing
-            machines are making waves worldwide. Explore a selection of our
-            recent installations.
-          </p>
-        </div>
-
-        {/* Projects Grid */}
-        <div className="grid gap-8 sm:grid-cols-2">
-          {projects.map((project) => (
-            <div
-              key={project.title}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-card"
-            >
-              <div className="relative aspect-[16/10] overflow-hidden">
-                <Image
-                  src={project.image}
-                  alt={project.title}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <span className="absolute top-4 left-4 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-                  {project.tag}
-                </span>
-              </div>
-              <div className="p-6">
-                <h3 className="mb-1 text-xl font-semibold text-card-foreground">
-                  {project.title}
-                </h3>
-                <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                  <MapPin className="h-3.5 w-3.5" />
-                  {project.location}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </main>
-  )
+  return <ProjectsMap projectsData={projectsData} />
 }

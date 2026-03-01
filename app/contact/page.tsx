@@ -1,5 +1,19 @@
 import type { Metadata } from "next"
-import { Mail, Phone, MapPin, Clock } from "lucide-react"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { ContactForm } from "@/components/contact-form"
+import {
+  Mail,
+  Phone,
+  MapPin,
+  MessageCircle,
+  Instagram,
+  MessageSquare,
+} from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Contact Us - SurfSmart",
@@ -7,30 +21,31 @@ export const metadata: Metadata = {
     "Get in touch with SurfSmart for surfing machine quotes, technical support, or partnership inquiries.",
 }
 
-const contactInfo = [
+const faqItems = [
   {
-    icon: Mail,
-    label: "Email",
-    value: "info@surfsmart.com",
-    href: "mailto:info@surfsmart.com",
+    trigger: "Site Requirements",
+    content:
+      "As long as the dimensions fit, we can build it anywhere.",
   },
   {
-    icon: Phone,
-    label: "Phone",
-    value: "+86 532 8888 8888",
-    href: "tel:+8653288888888",
+    trigger: "Power Consumption",
+    content:
+      "37kW per pump. High efficiency, optimized for Middle East energy standards.",
   },
   {
-    icon: MapPin,
-    label: "Address",
-    value: "Qingdao, Shandong, China",
-    href: undefined,
+    trigger: "Lead Time",
+    content:
+      "3 months for production in China + 1 month for global shipping.",
   },
   {
-    icon: Clock,
-    label: "Business Hours",
-    value: "Mon - Fri, 9:00 - 18:00 (CST)",
-    href: undefined,
+    trigger: "Installation",
+    content:
+      "Professional onsite guidance, completion within 30 days.",
+  },
+  {
+    trigger: "Warranty",
+    content:
+      "12-month worry-free international warranty.",
   },
 ]
 
@@ -53,121 +68,97 @@ export default function ContactPage() {
           </p>
         </div>
 
-        <div className="grid gap-12 lg:grid-cols-5">
-          {/* Contact Form */}
-          <div className="lg:col-span-3">
-            <form className="flex flex-col gap-6 rounded-2xl border border-border bg-card p-8">
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor="name"
-                    className="text-sm font-medium text-card-foreground"
-                  >
-                    Name
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    placeholder="Your name"
-                    className="rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor="email"
-                    className="text-sm font-medium text-card-foreground"
-                  >
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="you@company.com"
-                    className="rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary"
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label
-                  htmlFor="subject"
-                  className="text-sm font-medium text-card-foreground"
+        {/* Two-column layout: FAQ (left) + Form (right) */}
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+          {/* Left: Expert Q&A */}
+          <section>
+            <h2 className="mb-6 text-2xl font-bold text-foreground">
+              Expert Q&A: Your Surfing Business, Solved.
+            </h2>
+            <Accordion type="single" collapsible className="w-full">
+              {faqItems.map((item) => (
+                <AccordionItem
+                  key={item.trigger}
+                  value={item.trigger}
+                  className="border-border"
                 >
-                  Subject
-                </label>
-                <select
-                  id="subject"
-                  className="rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary"
-                  defaultValue=""
-                >
-                  <option value="" disabled>
-                    Select a topic
-                  </option>
-                  <option>Request a Quote</option>
-                  <option>Technical Consultation</option>
-                  <option>After-Sales Support</option>
-                  <option>Factory Visit</option>
-                  <option>Partnership Inquiry</option>
-                  <option>Other</option>
-                </select>
-              </div>
+                  <AccordionTrigger className="text-left text-foreground hover:text-primary hover:no-underline">
+                    {item.trigger}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    {item.content}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </section>
 
-              <div className="flex flex-col gap-2">
-                <label
-                  htmlFor="message"
-                  className="text-sm font-medium text-card-foreground"
-                >
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  rows={5}
-                  placeholder="Tell us about your project..."
-                  className="resize-none rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary"
-                />
-              </div>
+          {/* Right: Contact Form */}
+          <section>
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-lg ring-1 ring-primary/10 dark:border-primary/20 dark:bg-card dark:shadow-xl sm:p-8">
+              <h2 className="mb-6 text-xl font-semibold text-foreground">
+                Get a Quote
+              </h2>
+              <ContactForm />
+            </div>
 
-              <button
-                type="submit"
-                className="self-start rounded-lg bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-              >
-                Send Message
-              </button>
-            </form>
-          </div>
-
-          {/* Contact Info Sidebar */}
-          <div className="flex flex-col gap-6 lg:col-span-2">
-            {contactInfo.map((item) => {
-              const Icon = item.icon
-              const content = (
-                <div className="flex items-start gap-4 rounded-xl border border-border bg-card p-5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                    <Icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      {item.label}
-                    </p>
-                    <p className="mt-0.5 text-sm font-medium text-card-foreground">
-                      {item.value}
-                    </p>
-                  </div>
-                </div>
-              )
-              return item.href ? (
+            {/* Contact Info & Social Links */}
+            <div className="mt-10 space-y-6">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                Reach Us Directly
+              </h3>
+              <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
                 <a
-                  key={item.label}
-                  href={item.href}
-                  className="transition-opacity hover:opacity-80"
+                  href="mailto:info@surfsmart.com"
+                  className="flex items-center gap-2 transition-colors hover:text-foreground"
                 >
-                  {content}
+                  <Mail className="h-4 w-4 shrink-0" />
+                  info@surfsmart.com
                 </a>
-              ) : (
-                <div key={item.label}>{content}</div>
-              )
-            })}
-          </div>
+                <a
+                  href="tel:+8653288888888"
+                  className="flex items-center gap-2 transition-colors hover:text-foreground"
+                >
+                  <Phone className="h-4 w-4 shrink-0" />
+                  +86 532 8888 8888
+                </a>
+                <span className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 shrink-0" />
+                  Qingdao, Shandong, China
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <a
+                  href="https://wa.me/8653288888888"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="WhatsApp"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                </a>
+                <a
+                  href="https://instagram.com/surfsmart"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
+                >
+                  <Instagram className="h-5 w-5" />
+                </a>
+                <a
+                  href="#"
+                  aria-label="WeChat"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
+                >
+                  <MessageSquare className="h-5 w-5" />
+                </a>
+                <span className="ml-2 text-xs text-muted-foreground">
+                  WeChat: surfsmart_official
+                </span>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </main>
