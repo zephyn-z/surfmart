@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Header } from '@/components/header'
 import { SiteFooter } from '@/components/site-footer'
+import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
 const inter = Inter({
@@ -50,6 +51,7 @@ export default function RootLayout({
         <Header />
         {children}
         <SiteFooter />
+        <Toaster richColors position="top-right" />
         <Analytics />
       </body>
     </html>

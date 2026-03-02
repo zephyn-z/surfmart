@@ -1,8 +1,10 @@
 "use client"
 
+import { useState, type BaseSyntheticEvent } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -31,6 +33,12 @@ const formSchema = z.object({
 })
 
 type FormValues = z.infer<typeof formSchema>
+type ContactFormProps = {
+  compact?: boolean
+  defaultSubject?: string
+  defaultProjectType?: string
+  defaultMessage?: string
+}
 
 const PROJECT_TYPES = [
   { value: "resort", label: "Resort" },
@@ -40,26 +48,80 @@ const PROJECT_TYPES = [
   { value: "other", label: "Other" },
 ] as const
 
-export function ContactForm() {
+export function ContactForm({
+  compact = false,
+  defaultSubject = "",
+  defaultProjectType = "other",
+  defaultMessage = "",
+}: ContactFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       email: "",
-      subject: "",
-      projectType: "",
-      message: "",
+      subject: defaultSubject,
+      projectType: defaultProjectType,
+      message: defaultMessage,
     },
   })
 
-  function onSubmit(values: FormValues) {
-    console.log(values)
-    form.reset()
+  async function onSubmit(_: FormValues, event?: BaseSyntheticEvent) {
+    const formElement = event?.target as HTMLFormElement | undefined
+    if (!formElement) return
+
+    setIsSubmitting(true)
+    setIsSuccess(false)
+
+    try {
+      const formData = new FormData(formElement)
+      const response = await fetch("https://formspree.io/f/xwvndkky", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error("Formspree request failed")
+      }
+
+      form.reset({
+        name: "",
+        email: "",
+        subject: defaultSubject,
+        projectType: defaultProjectType,
+        message: defaultMessage,
+      })
+      setIsSuccess(true)
+      toast.success(
+        "Thank you! Your inquiry has been sent successfully. We will contact you soon."
+      )
+      setTimeout(() => setIsSuccess(false), 2500)
+    } catch {
+      toast.error("Submission failed. Please check your network and try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        action="https://formspree.io/f/xwvndkky"
+        method="POST"
+        onSubmit={form.handleSubmit(onSubmit)}
+        className={compact ? "space-y-4" : "space-y-6"}
+      >
+        <input
+          type="hidden"
+          name="project_type"
+          value={form.watch("projectType")}
+          readOnly
+        />
+
         <div className="grid gap-6 sm:grid-cols-2">
           <FormField
             control={form.control}
@@ -68,7 +130,7 @@ export function ContactForm() {
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your name" {...field} />
+                  <Input placeholder="Your name" {...field} name="full_name" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -85,6 +147,7 @@ export function ContactForm() {
                     type="email"
                     placeholder="you@company.com"
                     {...field}
+                    name="email"
                   />
                 </FormControl>
                 <FormMessage />
@@ -100,7 +163,7 @@ export function ContactForm() {
             <FormItem>
               <FormLabel>Subject</FormLabel>
               <FormControl>
-                <Input placeholder="Brief subject" {...field} />
+                <Input placeholder="Brief subject" {...field} name="subject" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -145,8 +208,9 @@ export function ContactForm() {
               <FormControl>
                 <Textarea
                   placeholder="Tell us about your project..."
-                  className="min-h-32"
+                  className={compact ? "min-h-24" : "min-h-32"}
                   {...field}
+                  name="message"
                 />
               </FormControl>
               <FormMessage />
@@ -154,8 +218,12 @@ export function ContactForm() {
           )}
         />
 
-        <Button type="submit" size="lg">
-          Send Message
+        <Button type="submit" size="lg" disabled={isSubmitting}>
+          {isSubmitting
+            ? "Sending..."
+            : isSuccess
+              ? "Message Sent!"
+              : "Send Message"}
         </Button>
       </form>
     </Form>

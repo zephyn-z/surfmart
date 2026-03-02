@@ -18,6 +18,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import { ContactForm } from "@/components/contact-form"
 
 const BLUR_DATA_URL =
   "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTYnIGhlaWdodD0nOScgdmlld0JveD0nMCAwIDE2IDknIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PHJlY3Qgd2lkdGg9JzE2JyBoZWlnaHQ9JzknIGZpbGw9JyNlNWU3ZWInLz48L3N2Zz4="
@@ -267,6 +268,19 @@ function ProjectDetailModal({
             <p className="text-sm leading-relaxed text-muted-foreground">
               {project.description}
             </p>
+
+            <div className="mt-2 rounded-xl border border-border/70 bg-background/60 p-4">
+              <h4 className="mb-3 text-sm font-semibold text-foreground">
+                Inquiry Form
+              </h4>
+              <ContactForm
+                key={project.id}
+                compact
+                defaultSubject={`Inquiry - ${project.name}`}
+                defaultProjectType="other"
+                defaultMessage={`Hello SurfSmart team, I am interested in the ${project.name} project details.`}
+              />
+            </div>
           </div>
         </DialogContent>
       </Dialog>
