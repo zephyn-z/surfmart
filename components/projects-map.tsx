@@ -4,12 +4,7 @@ import { useState, useCallback, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { MapPin, X } from "lucide-react"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import {
   Carousel,
   type CarouselApi,
@@ -18,16 +13,17 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import { ContactForm } from "@/components/contact-form"
+
 
 const BLUR_DATA_URL =
   "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTYnIGhlaWdodD0nOScgdmlld0JveD0nMCAwIDE2IDknIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PHJlY3Qgd2lkdGg9JzE2JyBoZWlnaHQ9JzknIGZpbGw9JyNlNWU3ZWInLz48L3N2Zz4="
 
 type ProjectData = {
   id: string
-  name: string
+  title: string
   country: string
   region: string
+  cover: string
   location?: string
   description: string
   coordinates: { x: number; y: number }
@@ -47,7 +43,7 @@ function MapPinItem({
   isSelected: boolean
   onSelect: () => void
 }) {
-  const thumbSrc = project.media[0] ?? "/images/gallery/g1.jpg"
+  const thumbSrc = project.cover ?? project.media[0] ?? "/images/gallery/g1.jpg"
 
   return (
     <button
@@ -62,7 +58,7 @@ function MapPinItem({
         e.stopPropagation()
         onSelect()
       }}
-      aria-label={`查看 ${project.name} 项目详情`}
+      aria-label={`查看 ${project.title} 项目详情`}
       aria-pressed={isSelected}
     >
       <motion.div
@@ -77,9 +73,9 @@ function MapPinItem({
       >
         <Image
           src={thumbSrc}
-          alt={project.name}
+          alt={project.title}
           fill
-          className="object-cover"
+          className="object-contain bg-black object-center"
           sizes="56px"
           placeholder="blur"
           blurDataURL={BLUR_DATA_URL}
@@ -101,7 +97,7 @@ function ProjectDetailModal({
   open: boolean
   onClose: () => void
 }) {
-  if (!project) return null
+
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
   const [carouselApi, setCarouselApi] = useState<CarouselApi>()
   const [activeIndex, setActiveIndex] = useState(0)
@@ -121,117 +117,115 @@ function ProjectDetailModal({
     }
   }, [carouselApi])
 
-  const activeMedia = project.media[activeIndex]
-  const isPortraitActive = activeMedia
-    ? mediaModeBySrc[activeMedia] === "portrait"
-    : false
+  if (!project) return null
+  const mediaList = project.media.filter((item) => Boolean(item && item.trim()))
+  const renderMediaItem = (item: string, idx: number) => {
+    const isPortrait = mediaModeBySrc[item] === "portrait"
+
+    return (
+      <CarouselItem key={item} className="h-full bg-black pl-0">
+        {isVideoSrc(item) ? (
+          <div className="relative h-full w-full bg-black/85">
+            {isPortrait && (
+              <video
+                src={item}
+                className="absolute inset-0 h-full w-full scale-125 object-contain object-center blur-2xl opacity-35"
+                muted
+                autoPlay
+                loop
+                playsInline
+                aria-hidden
+              />
+            )}
+            <video
+              src={item}
+              controls
+              className="relative z-10 h-full w-full object-contain object-center"
+              muted
+              autoPlay
+              loop
+              playsInline
+              onLoadedMetadata={(event) => {
+                const video = event.currentTarget
+                setMediaModeBySrc((prev) => ({
+                  ...prev,
+                  [item]:
+                    video.videoHeight > video.videoWidth
+                      ? "portrait"
+                      : "landscape",
+                }))
+              }}
+            />
+          </div>
+        ) : (
+          <div className="relative h-full w-full bg-black/85">
+            {isPortrait && (
+              <img
+                src={item}
+                alt=""
+                className="absolute inset-0 h-full w-full scale-125 object-contain object-center blur-2xl opacity-35"
+                aria-hidden
+              />
+            )}
+            <button
+              type="button"
+              onClick={() => setLightboxSrc(item)}
+              className="relative z-10 h-full w-full cursor-zoom-in"
+              aria-label="打开大图预览"
+            >
+              <img
+                src={item}
+                alt={`${project.title} - 图片 ${idx + 1}`}
+                className="h-full w-full object-contain object-center"
+                loading="lazy"
+                onLoad={(event) => {
+                  const image = event.currentTarget
+                  setMediaModeBySrc((prev) => ({
+                    ...prev,
+                    [item]:
+                      image.naturalHeight > image.naturalWidth
+                        ? "portrait"
+                        : "landscape",
+                  }))
+                }}
+                onError={() => {
+                  console.warn(`Warning: missing project media image ${item}`)
+                }}
+              />
+            </button>
+          </div>
+        )}
+      </CarouselItem>
+    )
+  }
 
   return (
     <>
       <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
         <DialogContent
-          className="max-h-[90vh] overflow-hidden border-0 bg-white/90 p-0 shadow-2xl backdrop-blur-xl dark:bg-card/90 max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:top-auto max-md:max-h-[92vh] max-md:translate-y-0 max-md:rounded-t-2xl max-md:border-t md:max-w-xl"
+          className="flex max-h-[90vh] flex-col overflow-y-auto border-0 bg-white/90 p-0 shadow-2xl backdrop-blur-xl dark:bg-card/90 max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:top-auto max-md:max-h-[92vh] max-md:translate-y-0 max-md:rounded-t-2xl max-md:border-t md:max-w-xl"
           showCloseButton={true}
         >
+          <DialogTitle className="sr-only">
+            {project.title} Project Details
+          </DialogTitle>
           {/* Top: Media Carousel */}
-          <div
-            className={`relative shrink-0 overflow-hidden bg-muted ${
-              isPortraitActive ? "aspect-[3/4]" : "aspect-[16/9]"
-            }`}
-          >
+          <div className="relative flex aspect-video max-h-[50vh] shrink items-center justify-center overflow-hidden bg-black">
             <Carousel
               opts={{ align: "start", loop: true }}
               className="h-full w-full"
               setApi={setCarouselApi}
             >
               <CarouselContent className="h-full">
-                {project.media.map((item, idx) => {
-                  const isPortrait = mediaModeBySrc[item] === "portrait"
-                  return (
-                    <CarouselItem key={item} className="h-full pl-0">
-                      {isVideoSrc(item) ? (
-                        <div className="relative h-full w-full bg-black/85">
-                          {isPortrait && (
-                            <video
-                              src={item}
-                              className="absolute inset-0 h-full w-full scale-125 object-cover object-center blur-2xl opacity-35"
-                              muted
-                              autoPlay
-                              loop
-                              playsInline
-                              aria-hidden
-                            />
-                          )}
-                          <video
-                            src={item}
-                            controls
-                            className={`relative z-10 h-full w-full ${
-                              isPortrait
-                                ? "object-contain object-center"
-                                : "object-cover object-center"
-                            }`}
-                            muted
-                            autoPlay
-                            loop
-                            playsInline
-                            onLoadedMetadata={(event) => {
-                              const video = event.currentTarget
-                              setMediaModeBySrc((prev) => ({
-                                ...prev,
-                                [item]:
-                                  video.videoHeight > video.videoWidth
-                                    ? "portrait"
-                                    : "landscape",
-                              }))
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        <div className="relative h-full w-full bg-black/85">
-                          {isPortrait && (
-                            <img
-                              src={item}
-                              alt=""
-                              className="absolute inset-0 h-full w-full scale-125 object-cover object-center blur-2xl opacity-35"
-                              aria-hidden
-                            />
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => setLightboxSrc(item)}
-                            className="relative z-10 h-full w-full cursor-zoom-in"
-                            aria-label="打开大图预览"
-                          >
-                            <img
-                              key={item}
-                              src={item}
-                              alt={`${project.name} - 图片 ${idx + 1}`}
-                              className={`h-full w-full ${
-                                isPortrait
-                                  ? "object-contain object-center"
-                                  : "object-cover object-center"
-                              }`}
-                              loading="lazy"
-                              onLoad={(event) => {
-                                const image = event.currentTarget
-                                setMediaModeBySrc((prev) => ({
-                                  ...prev,
-                                  [item]:
-                                    image.naturalHeight > image.naturalWidth
-                                      ? "portrait"
-                                      : "landscape",
-                                }))
-                              }}
-                              onError={() => {
-                                console.warn(`Warning: missing project media image ${item}`)
-                              }}
-                            />
-                          </button>
-                        </div>
-                      )}
-                    </CarouselItem>
-                  )
-                })}
+                {mediaList.length === 0 ? (
+                  <CarouselItem className="h-full bg-black pl-0">
+                    <div className="flex h-full w-full items-center justify-center bg-gray-900 text-sm text-gray-300">
+                      Loading media...
+                    </div>
+                  </CarouselItem>
+                ) : (
+                  mediaList.map((item, idx) => renderMediaItem(item, idx))
+                )}
               </CarouselContent>
               <CarouselPrevious className="left-3 z-30 border-white/35 bg-black/65 text-white hover:bg-black/80 disabled:opacity-40" />
               <CarouselNext className="right-3 z-30 border-white/35 bg-black/65 text-white hover:bg-black/80 disabled:opacity-40" />
@@ -239,7 +233,7 @@ function ProjectDetailModal({
 
             <div className="pointer-events-none absolute inset-x-0 bottom-3 z-30 flex justify-center">
               <div className="pointer-events-auto flex items-center gap-1.5 rounded-full bg-black/45 px-2 py-1 backdrop-blur-sm">
-                {project.media.map((item, index) => (
+                {mediaList.map((item, index) => (
                   <button
                     key={`dot-${item}`}
                     type="button"
@@ -257,30 +251,18 @@ function ProjectDetailModal({
           </div>
 
           {/* Bottom: Text Content */}
-          <div className="flex flex-col gap-4 overflow-y-auto p-6">
-            <DialogHeader>
-              <DialogTitle className="text-xl">{project.name}</DialogTitle>
-              <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4 shrink-0" />
-                {project.location ?? `${project.region}, ${project.country}`}
-              </p>
-            </DialogHeader>
-            <p className="text-sm leading-relaxed text-muted-foreground">
+          <div className="grow p-6">
+            <h3 className="text-base font-semibold text-foreground">
+              {project.title}
+            </h3>
+            <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+              <MapPin className="h-4 w-4 shrink-0" />
+              {project.location ?? `${project.region}, ${project.country}`}
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
               {project.description}
             </p>
-
-            <div className="mt-2 rounded-xl border border-border/70 bg-background/60 p-4">
-              <h4 className="mb-3 text-sm font-semibold text-foreground">
-                Inquiry Form
-              </h4>
-              <ContactForm
-                key={project.id}
-                compact
-                defaultSubject={`Inquiry - ${project.name}`}
-                defaultProjectType="other"
-                defaultMessage={`Hello SurfSmart team, I am interested in the ${project.name} project details.`}
-              />
-            </div>
+            
           </div>
         </DialogContent>
       </Dialog>
@@ -434,7 +416,7 @@ export function ProjectsMap({
                           src={item.src}
                           alt={item.alt}
                           fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="object-contain bg-black object-center transition-transform duration-500 group-hover:scale-105"
                           sizes="(max-width: 768px) 100vw, 50vw, 33vw"
                           placeholder="blur"
                           blurDataURL={BLUR_DATA_URL}

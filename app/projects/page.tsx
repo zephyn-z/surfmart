@@ -11,12 +11,13 @@ export const metadata: Metadata = {
 
 type ProjectData = {
   id: string
-  name: string
+  title: string
   country: string
   region: string
   location: string
   description: string
   coordinates: { x: number; y: number }
+  cover: string
   media: string[]
 }
 
@@ -89,20 +90,16 @@ async function getProjectsData(): Promise<ProjectData[]> {
     const allMedia = files
       .filter((file) => file.isFile())
       .map((file) => file.name)
-      .filter((fileName) => /\.(jpe?g|png|mp4)$/i.test(fileName.toLowerCase()))
+      .filter((fileName) => /\.(jpg|mp4)$/i.test(fileName.toLowerCase()))
       .sort((a, b) => {
-        if (/^cover\.(jpe?g|png)$/i.test(a.toLowerCase())) return -1
-        if (/^cover\.(jpe?g|png)$/i.test(b.toLowerCase())) return 1
+        if (a.toLowerCase() === "cover.jpg") return -1
+        if (b.toLowerCase() === "cover.jpg") return 1
         return a.localeCompare(b)
       })
-    const coverFile =
-      allMedia.find((file) => /^cover\.(jpe?g|png)$/i.test(file.toLowerCase())) ??
-      null
-    const coverPath = coverFile
-      ? `/images/projects/${folderName}/${coverFile}`
-      : `/images/projects/${folderName}/cover.jpg`
+    const coverFile = allMedia.find((file) => file.toLowerCase() === "cover.jpg")
+    const coverPath = `/images/projects/${folderName}/cover.jpg`
     const otherMedia = allMedia
-      .filter((file) => !/^cover\.(jpe?g|png)$/i.test(file.toLowerCase()))
+      .filter((file) => file.toLowerCase() !== "cover.jpg")
       .map((file) => `/images/projects/${folderName}/${file}`)
     const media = [coverPath, ...otherMedia]
 
@@ -114,21 +111,21 @@ async function getProjectsData(): Promise<ProjectData[]> {
       console.warn(`Warning: project folder ${folderName} has no media files`)
     }
 
-    const displacement = sameCountryCount > 0 ? 2 + Math.random() : 0 // 2%~3%
-    const directionX = sameCountryCount % 2 === 0 ? 1 : -1
-    const directionY = sameCountryCount % 3 === 0 ? -1 : 1
+    const xOffset = sameCountryCount > 0 ? Math.random() * 2 : 0
+    const yOffset = sameCountryCount > 0 ? Math.random() * 2 : 0
 
     projects.push({
       id: folderName,
-      name: `${region} Project`,
+      title: `${region} Project`,
       country,
       region,
       location: `${region}, ${country}`,
-      description: `案例来自 ${region}，用于展示 SurfSmart 在 ${country} 的真实项目落地效果。`,
+      description: `${country} temp`,
       coordinates: {
-        x: base.x + displacement * directionX,
-        y: base.y + displacement * directionY,
+        x: base.x + xOffset,
+        y: base.y + yOffset,
       },
+      cover: coverPath,
       media,
     })
   }
