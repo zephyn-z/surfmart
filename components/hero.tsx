@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion"
 import { ArrowRight, Play } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 
 export function Hero() {
@@ -15,13 +14,16 @@ export function Hero() {
 
       {/* ---- Image panel ---- */}
       <div className="relative aspect-[16/10] w-full sm:absolute sm:inset-0 sm:aspect-auto">
-        <Image
-          src="/images/hero-bg.jpg"
-          alt="SurfSmart wave pool aerial view"
-          fill
-          className="object-cover"
-          priority
-          quality={90}
+        <video
+          src="/images/hero-video.mp4"
+          className="h-full w-full object-cover"
+          autoPlay
+          loop
+          muted
+          playsInline
+          onError={() => {
+            console.warn("Warning: missing hero video /images/hero-video.mp4")
+          }}
         />
         {/* Dark overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />

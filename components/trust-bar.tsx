@@ -90,10 +90,13 @@ export function TrustBar() {
         >
           <div className="relative aspect-[21/9] overflow-hidden">
             <Image
-              src="/images/factory.jpg"
+              src="/images/factory/factory-1.jpg"
               alt="SurfSmart manufacturing facility"
               fill
               className="object-cover"
+              onError={() => {
+                console.warn("Warning: missing factory image /images/factory/factory-1.jpg")
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/40 to-transparent" />
             <div className="absolute bottom-0 left-0 p-8 md:p-12">

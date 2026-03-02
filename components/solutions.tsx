@@ -10,7 +10,7 @@ const segments = [
     title: "Resorts & Hotels",
     description: "Boost booking rates by 30% with a premium surf attraction that differentiates your property.",
     icon: Hotel,
-    image: "/images/segment-resort.jpg",
+    image: "/images/scenes/hotel.png",
     stat: "+30%",
     statLabel: "Booking Rate",
   },
@@ -18,7 +18,7 @@ const segments = [
     title: "Clubs & Gyms",
     description: "Offer a unique surf-fitness experience that drives membership growth and retention.",
     icon: Dumbbell,
-    image: "/images/segment-club.jpg",
+    image: "/images/scenes/club.png",
     stat: "2x",
     statLabel: "Member Retention",
   },
@@ -26,7 +26,7 @@ const segments = [
     title: "Water Parks",
     description: "Add a signature surf attraction that increases dwell time and per-visitor spend.",
     icon: Waves,
-    image: "/images/segment-waterpark.jpg",
+    image: "/images/scenes/waterpark.png",
     stat: "+45%",
     statLabel: "Visitor Spend",
   },
@@ -34,7 +34,7 @@ const segments = [
     title: "Private Villas",
     description: "Transform your property with a personal surf pool, the ultimate luxury lifestyle upgrade.",
     icon: Home,
-    image: "/images/segment-villa.jpg",
+    image: "/images/scenes/home.png",
     stat: "5-Star",
     statLabel: "Lifestyle",
   },
@@ -106,6 +106,9 @@ export function Solutions() {
                     alt={segment.title}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    onError={() => {
+                      console.warn(`Warning: missing scene image ${segment.image}`)
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
 

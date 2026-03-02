@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
-import { MapPin } from "lucide-react"
+import { MapPin, X } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -12,23 +12,29 @@ import {
 } from "@/components/ui/dialog"
 import {
   Carousel,
+  type CarouselApi,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
 
+const BLUR_DATA_URL =
+  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTYnIGhlaWdodD0nOScgdmlld0JveD0nMCAwIDE2IDknIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PHJlY3Qgd2lkdGg9JzE2JyBoZWlnaHQ9JzknIGZpbGw9JyNlNWU3ZWInLz48L3N2Zz4="
+
 type ProjectData = {
   id: string
   name: string
-  location: string
+  country: string
+  region: string
+  location?: string
   description: string
   coordinates: { x: number; y: number }
   media: string[]
 }
 
 function isVideoSrc(src: string): boolean {
-  return /\.(mp4|webm|mov|ogg)(\?|$)/i.test(src)
+  return src.toLowerCase().endsWith(".mp4")
 }
 
 function MapPinItem({
@@ -40,7 +46,7 @@ function MapPinItem({
   isSelected: boolean
   onSelect: () => void
 }) {
-  const thumbSrc = project.media[0] ?? "/images/model-1.jpg"
+  const thumbSrc = project.media[0] ?? "/images/gallery/g1.jpg"
 
   return (
     <button
@@ -74,6 +80,11 @@ function MapPinItem({
           fill
           className="object-cover"
           sizes="56px"
+          placeholder="blur"
+          blurDataURL={BLUR_DATA_URL}
+          onError={() => {
+            console.warn(`Warning: missing project thumbnail ${thumbSrc}`)
+          }}
         />
       </motion.div>
     </button>
@@ -90,75 +101,207 @@ function ProjectDetailModal({
   onClose: () => void
 }) {
   if (!project) return null
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>()
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [mediaModeBySrc, setMediaModeBySrc] = useState<
+    Record<string, "portrait" | "landscape">
+  >({})
+
+  useEffect(() => {
+    if (!carouselApi) return
+    const updateCurrent = () => setActiveIndex(carouselApi.selectedScrollSnap())
+    updateCurrent()
+    carouselApi.on("select", updateCurrent)
+    carouselApi.on("reInit", updateCurrent)
+    return () => {
+      carouselApi.off("select", updateCurrent)
+      carouselApi.off("reInit", updateCurrent)
+    }
+  }, [carouselApi])
+
+  const activeMedia = project.media[activeIndex]
+  const isPortraitActive = activeMedia
+    ? mediaModeBySrc[activeMedia] === "portrait"
+    : false
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent
-        className="max-h-[90vh] overflow-hidden border-0 bg-white/90 p-0 shadow-2xl backdrop-blur-xl dark:bg-card/90 max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:top-auto max-md:max-h-[92vh] max-md:translate-y-0 max-md:rounded-t-2xl max-md:border-t md:max-w-xl"
-        showCloseButton={true}
-      >
-        {/* Top: Media Carousel */}
-        <div className="relative aspect-[16/10] shrink-0 overflow-hidden bg-muted">
-          <Carousel
-            opts={{ align: "start", loop: true }}
-            className="h-full w-full"
+    <>
+      <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+        <DialogContent
+          className="max-h-[90vh] overflow-hidden border-0 bg-white/90 p-0 shadow-2xl backdrop-blur-xl dark:bg-card/90 max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:top-auto max-md:max-h-[92vh] max-md:translate-y-0 max-md:rounded-t-2xl max-md:border-t md:max-w-xl"
+          showCloseButton={true}
+        >
+          {/* Top: Media Carousel */}
+          <div
+            className={`relative shrink-0 overflow-hidden bg-muted ${
+              isPortraitActive ? "aspect-[3/4]" : "aspect-[16/9]"
+            }`}
           >
-            <CarouselContent className="h-full">
-              {project.media.map((src, idx) => (
-                <CarouselItem key={idx} className="h-full pl-0">
-                  {isVideoSrc(src) ? (
-                    <video
-                      src={src}
-                      controls
-                      className="h-full w-full object-cover"
-                      playsInline
-                    />
-                  ) : (
-                    <div className="relative h-full w-full">
-                      <Image
-                        src={src}
-                        alt={`${project.name} - 图片 ${idx + 1}`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, 512px"
-                      />
-                    </div>
-                  )}
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="left-2" />
-            <CarouselNext className="right-2" />
-          </Carousel>
-        </div>
+            <Carousel
+              opts={{ align: "start", loop: true }}
+              className="h-full w-full"
+              setApi={setCarouselApi}
+            >
+              <CarouselContent className="h-full">
+                {project.media.map((item, idx) => {
+                  const isPortrait = mediaModeBySrc[item] === "portrait"
+                  return (
+                    <CarouselItem key={item} className="h-full pl-0">
+                      {isVideoSrc(item) ? (
+                        <div className="relative h-full w-full bg-black/85">
+                          {isPortrait && (
+                            <video
+                              src={item}
+                              className="absolute inset-0 h-full w-full scale-125 object-cover object-center blur-2xl opacity-35"
+                              muted
+                              autoPlay
+                              loop
+                              playsInline
+                              aria-hidden
+                            />
+                          )}
+                          <video
+                            src={item}
+                            controls
+                            className={`relative z-10 h-full w-full ${
+                              isPortrait
+                                ? "object-contain object-center"
+                                : "object-cover object-center"
+                            }`}
+                            muted
+                            autoPlay
+                            loop
+                            playsInline
+                            onLoadedMetadata={(event) => {
+                              const video = event.currentTarget
+                              setMediaModeBySrc((prev) => ({
+                                ...prev,
+                                [item]:
+                                  video.videoHeight > video.videoWidth
+                                    ? "portrait"
+                                    : "landscape",
+                              }))
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="relative h-full w-full bg-black/85">
+                          {isPortrait && (
+                            <img
+                              src={item}
+                              alt=""
+                              className="absolute inset-0 h-full w-full scale-125 object-cover object-center blur-2xl opacity-35"
+                              aria-hidden
+                            />
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setLightboxSrc(item)}
+                            className="relative z-10 h-full w-full cursor-zoom-in"
+                            aria-label="打开大图预览"
+                          >
+                            <img
+                              key={item}
+                              src={item}
+                              alt={`${project.name} - 图片 ${idx + 1}`}
+                              className={`h-full w-full ${
+                                isPortrait
+                                  ? "object-contain object-center"
+                                  : "object-cover object-center"
+                              }`}
+                              loading="lazy"
+                              onLoad={(event) => {
+                                const image = event.currentTarget
+                                setMediaModeBySrc((prev) => ({
+                                  ...prev,
+                                  [item]:
+                                    image.naturalHeight > image.naturalWidth
+                                      ? "portrait"
+                                      : "landscape",
+                                }))
+                              }}
+                              onError={() => {
+                                console.warn(`Warning: missing project media image ${item}`)
+                              }}
+                            />
+                          </button>
+                        </div>
+                      )}
+                    </CarouselItem>
+                  )
+                })}
+              </CarouselContent>
+              <CarouselPrevious className="left-3 z-30 border-white/35 bg-black/65 text-white hover:bg-black/80 disabled:opacity-40" />
+              <CarouselNext className="right-3 z-30 border-white/35 bg-black/65 text-white hover:bg-black/80 disabled:opacity-40" />
+            </Carousel>
 
-        {/* Bottom: Text Content */}
-        <div className="flex flex-col gap-4 overflow-y-auto p-6">
-          <DialogHeader>
-            <DialogTitle className="text-xl">{project.name}</DialogTitle>
-            <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4 shrink-0" />
-              {project.location}
+            <div className="pointer-events-none absolute inset-x-0 bottom-3 z-30 flex justify-center">
+              <div className="pointer-events-auto flex items-center gap-1.5 rounded-full bg-black/45 px-2 py-1 backdrop-blur-sm">
+                {project.media.map((item, index) => (
+                  <button
+                    key={`dot-${item}`}
+                    type="button"
+                    onClick={() => carouselApi?.scrollTo(index)}
+                    className={`h-1.5 rounded-full transition-all ${
+                      index === activeIndex
+                        ? "w-5 bg-white"
+                        : "w-1.5 bg-white/55 hover:bg-white/80"
+                    }`}
+                    aria-label={`切换到第 ${index + 1} 张媒体`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom: Text Content */}
+          <div className="flex flex-col gap-4 overflow-y-auto p-6">
+            <DialogHeader>
+              <DialogTitle className="text-xl">{project.name}</DialogTitle>
+              <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4 shrink-0" />
+                {project.location ?? `${project.region}, ${project.country}`}
+              </p>
+            </DialogHeader>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              {project.description}
             </p>
-          </DialogHeader>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            {project.description}
-          </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {lightboxSrc && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/90 p-4"
+          onClick={() => setLightboxSrc(null)}
+        >
+          <button
+            type="button"
+            className="absolute right-4 top-4 rounded-full bg-black/60 p-2 text-white hover:bg-black/80"
+            onClick={() => setLightboxSrc(null)}
+            aria-label="关闭大图预览"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <img
+            src={lightboxSrc}
+            alt="Lightbox preview"
+            className="max-h-full max-w-full object-contain"
+            onClick={(event) => event.stopPropagation()}
+          />
         </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </>
   )
 }
 
 const galleryImages = [
-  { src: "/images/model-1.jpg", alt: "WavePro X1 现场运行" },
-  { src: "/images/model-2.jpg", alt: "FlowRider S2 室内冲浪" },
-  { src: "/images/model-3.jpg", alt: "TideForce M3 商业冲浪池" },
-  { src: "/images/model-4.jpg", alt: "AquaElite V4 奢华冲浪池" },
-  { src: "/images/segment-resort.jpg", alt: "度假村冲浪项目" },
-  { src: "/images/segment-club.jpg", alt: "俱乐部冲浪项目" },
-  { src: "/images/segment-waterpark.jpg", alt: "水上乐园冲浪项目" },
-  { src: "/images/segment-villa.jpg", alt: "私人别墅冲浪池" },
+  { src: "/images/gallery/g1.jpg", alt: "现场案例图 1" },
+  { src: "/images/gallery/g2.jpg", alt: "现场案例图 2" },
+  { src: "/images/gallery/g3.jpg", alt: "现场案例图 3" },
+  { src: "/images/gallery/g4.jpg", alt: "现场案例图 4" },
+  { src: "/images/gallery/g5.jpg", alt: "现场案例图 5" },
 ]
 
 const MAP_VIEWBOX = { width: 2000, height: 857 }
@@ -168,19 +311,18 @@ export function ProjectsMap({
 }: {
   projectsData: ProjectData[]
 }) {
-  const [activeId, setActiveId] = useState<string | null>(null)
-  const activeProject = projectsData.find((p) => p.id === activeId)
+  const [activeProject, setActiveProject] = useState<ProjectData | null>(null)
 
-  const handleSelect = useCallback((id: string) => {
-    setActiveId((prev) => (prev === id ? null : id))
+  const handleSelect = useCallback((project: ProjectData) => {
+    setActiveProject((prev) => (prev?.id === project.id ? null : project))
   }, [])
 
   const handleClose = useCallback(() => {
-    setActiveId(null)
+    setActiveProject(null)
   }, [])
 
   const handleMapClick = useCallback(() => {
-    setActiveId(null)
+    setActiveProject(null)
   }, [])
 
   return (
@@ -241,8 +383,8 @@ export function ProjectsMap({
                 <MapPinItem
                   key={project.id}
                   project={project}
-                  isSelected={activeId === project.id}
-                  onSelect={() => handleSelect(project.id)}
+                  isSelected={activeProject?.id === project.id}
+                  onSelect={() => handleSelect(project)}
                 />
               ))}
             </div>
@@ -252,7 +394,7 @@ export function ProjectsMap({
         {/* Project Detail Modal */}
         <ProjectDetailModal
           project={activeProject ?? null}
-          open={!!activeId}
+          open={!!activeProject}
           onClose={handleClose}
         />
 
@@ -280,6 +422,11 @@ export function ProjectsMap({
                           fill
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
                           sizes="(max-width: 768px) 100vw, 50vw, 33vw"
+                          placeholder="blur"
+                          blurDataURL={BLUR_DATA_URL}
+                          onError={() => {
+                            console.warn(`Warning: missing gallery image ${item.src}`)
+                          }}
                         />
                       </div>
                     </div>

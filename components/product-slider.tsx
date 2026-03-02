@@ -9,28 +9,28 @@ const models = [
   {
     name: "WavePro X1",
     subtitle: "Competition Series",
-    image: "/images/model-1.jpg",
+    image: "/images/models/model-1.png",
     description:
       "Professional-grade barrel wave machine, ideal for competitive surfing venues and training centers.",
   },
   {
     name: "FlowRider S2",
     subtitle: "Indoor Series",
-    image: "/images/model-2.jpg",
+    image: "/images/models/model-2.png",
     description:
       "Compact indoor standing-wave machine, perfect for clubs, gyms, and entertainment centers.",
   },
   {
     name: "TideForce M3",
     subtitle: "Commercial Series",
-    image: "/images/model-3.jpg",
+    image: "/images/models/model-3.png",
     description:
       "High-capacity commercial wave pool system designed for water parks and large resort complexes.",
   },
   {
     name: "AquaElite V4",
     subtitle: "Luxury Series",
-    image: "/images/model-4.jpg",
+    image: "/images/models/model-4.png",
     description:
       "Premium residential surf pool designed for luxury villas, boutique resorts, and private estates.",
   },
@@ -63,6 +63,9 @@ function ModelCard({
           fill
           className="object-cover transition-transform duration-700 hover:scale-105"
           draggable={false}
+          onError={() => {
+            console.warn(`Warning: missing model image ${model.image}`)
+          }}
         />
         <div
           className={`absolute ${compact ? "bottom-2 left-2" : "bottom-3 left-3"}`}
