@@ -308,6 +308,9 @@ const galleryImages = [
   { src: "/images/gallery/g3.jpg", alt: "现场案例图 3" },
   { src: "/images/gallery/g4.jpg", alt: "现场案例图 4" },
   { src: "/images/gallery/g5.jpg", alt: "现场案例图 5" },
+  { src: "/images/gallery/g6.jpg", alt: "现场案例图 6" },
+  { src: "/images/gallery/g7.jpg", alt: "现场案例图 7" },
+  { src: "/images/gallery/g8.jpg", alt: "现场案例图 8" },
 ]
 
 const MAP_VIEWBOX = { width: 2000, height: 857 }

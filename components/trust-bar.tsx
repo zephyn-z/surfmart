@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { motion, useInView } from "framer-motion"
 import {
   ShieldCheck,
@@ -21,9 +21,24 @@ const trustItems = [
   { icon: Factory, label: "15,000 sqm Factory" },
 ]
 
+const factoryImages = [
+  "/images/factory/factory-1.jpg",
+  "/images/factory/factory-2.jpg",
+  "/images/factory/factory-3.jpg",
+]
+
 export function TrustBar() {
   const sectionRef = useRef(null)
   const isInView = useInView(sectionRef, { once: true, amount: 0.3 })
+  const [currentFactoryImage, setCurrentFactoryImage] = useState(0)
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setCurrentFactoryImage((prev) => (prev + 1) % factoryImages.length)
+    }, 4000)
+
+    return () => window.clearInterval(timer)
+  }, [])
 
   return (
     <section id="trust" ref={sectionRef} className="relative overflow-hidden bg-background py-16 sm:py-20 lg:py-28">
@@ -89,15 +104,25 @@ export function TrustBar() {
           className="relative overflow-hidden rounded-2xl"
         >
           <div className="relative aspect-[21/9] overflow-hidden">
-            <Image
-              src="/images/factory/factory-1.jpg"
-              alt="SurfSmart manufacturing facility"
-              fill
-              className="object-cover"
-              onError={() => {
-                console.warn("Warning: missing factory image /images/factory/factory-1.jpg")
-              }}
-            />
+            {factoryImages.map((src, index) => (
+              <motion.div
+                key={src}
+                animate={{ opacity: index === currentFactoryImage ? 1 : 0 }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
+                className="absolute inset-0"
+                aria-hidden={index !== currentFactoryImage}
+              >
+                <Image
+                  src={src}
+                  alt="SurfSmart manufacturing facility"
+                  fill
+                  className="object-cover"
+                  onError={() => {
+                    console.warn(`Warning: missing factory image ${src}`)
+                  }}
+                />
+              </motion.div>
+            ))}
             <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/40 to-transparent" />
             <div className="absolute bottom-0 left-0 p-8 md:p-12">
               <h3 className="mb-2 text-2xl font-bold text-background md:text-3xl">
@@ -108,6 +133,19 @@ export function TrustBar() {
                 rigorous quality control — every machine built to international
                 standards.
               </p>
+            </div>
+            <div className="absolute right-4 bottom-4 z-10 flex items-center gap-2 rounded-full bg-foreground/30 px-3 py-1.5 backdrop-blur-sm">
+              {factoryImages.map((src, index) => (
+                <button
+                  key={src}
+                  type="button"
+                  onClick={() => setCurrentFactoryImage(index)}
+                  className={`h-2 w-2 rounded-full transition-all ${
+                    index === currentFactoryImage ? "bg-background w-5" : "bg-background/50"
+                  }`}
+                  aria-label={`View factory image ${index + 1}`}
+                />
+              ))}
             </div>
           </div>
         </motion.div>
