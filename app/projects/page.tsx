@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { readdir } from "node:fs/promises"
 import path from "node:path"
-import { ProjectsMap } from "@/components/projects-map"
+import { ProjectsMap } from "../../components/projects-map"
 
 export const metadata: Metadata = {
   title: "Global Projects - SurfSmart",
@@ -16,7 +16,7 @@ type ProjectData = {
   region: string
   location: string
   description: string
-  coordinates: { x: number; y: number }
+  coordinates: [number, number]
   cover: string
   media: string[]
 }
@@ -33,15 +33,25 @@ const COUNTRY_NAME_MAP: Record<string, string> = {
   us: "USA",
 }
 
-const countryCoords: Record<string, { x: number; y: number }> = {
-  china: { x: 82, y: 38 },
-  "saudi arabia": { x: 58, y: 45 },
-  uae: { x: 60, y: 46 },
-  france: { x: 49, y: 35 },
-  germany: { x: 51, y: 33 },
-  thailand: { x: 78, y: 55 },
-  usa: { x: 20, y: 40 },
-  australia: { x: 85, y: 80 },
+const countryLatLng: Record<string, [number, number]> = {
+  china: [35.0, 103.0],
+  "saudi arabia": [23.9, 45.1],
+  uae: [24.3, 54.4],
+  france: [46.2, 2.2],
+  germany: [51.2, 10.4],
+  thailand: [15.8, 101.0],
+  usa: [39.8, -98.6],
+  australia: [-25.2, 133.8],
+}
+
+const PROJECT_COORDINATES_MAP: Record<string, [number, number]> = {
+  "china-guangzhou-no4": [23.1291, 113.2644],
+  "china-nantong-no3": [31.9813, 120.8945],
+  "china-shanghai-no1": [31.2304, 121.4737],
+  "china-shanghai-no2": [31.2304, 121.4737],
+  "france-hyeres-no1": [43.1199, 6.1316],
+  "germany-mettmann-no1": [51.2507, 6.974],
+  "thailand-chonburi-no1": [13.3611, 100.9847],
 }
 
 const IMAGE_EXT_RE = /\.(jpg|jpeg|png|webp)$/i
@@ -93,6 +103,13 @@ function parseCountryAndRegion(folderName: string) {
   return { country, region }
 }
 
+function getGeoOffset(index: number): [number, number] {
+  if (index <= 0) return [0, 0]
+  const angle = ((index * 53) % 360) * (Math.PI / 180)
+  const radius = 0.42 + Math.floor(index / 6) * 0.12
+  return [Math.sin(angle) * radius, Math.cos(angle) * radius]
+}
+
 async function getProjectsData(): Promise<ProjectData[]> {
   const projectsRoot = path.join(process.cwd(), "public", "images", "projects")
   const projectDirs = await readdir(projectsRoot, { withFileTypes: true })
@@ -106,13 +123,14 @@ async function getProjectsData(): Promise<ProjectData[]> {
     const folderName = dirent.name
     const { country, region } = parseCountryAndRegion(folderName)
     const countryKey = country.toLowerCase()
-    const base = countryCoords[countryKey] ?? { x: 50, y: 50 }
+    const projectLatLng = PROJECT_COORDINATES_MAP[folderName]
+    const base = projectLatLng ?? countryLatLng[countryKey] ?? [20, 0]
     const sameCountryCount = countryCount[country] ?? 0
     countryCount[country] = sameCountryCount + 1
 
-    if (!countryCoords[countryKey]) {
+    if (!projectLatLng && !countryLatLng[countryKey]) {
       console.warn(
-        `Warning: country ${country} has no predefined coordinate, fallback to center`
+        `Warning: country ${country} has no predefined geo coordinate, fallback to mock center`
       )
     }
 
@@ -151,8 +169,9 @@ async function getProjectsData(): Promise<ProjectData[]> {
       console.warn(`Warning: project folder ${folderName} has no media files`)
     }
 
-    const xOffset = sameCountryCount > 0 ? Math.random() * 2 : 0
-    const yOffset = sameCountryCount > 0 ? Math.random() * 2 : 0
+    const [latOffset, lngOffset] = projectLatLng
+      ? [0, 0]
+      : getGeoOffset(sameCountryCount)
 
     projects.push({
       id: folderName,
@@ -161,10 +180,7 @@ async function getProjectsData(): Promise<ProjectData[]> {
       region,
       location: `${region}, ${country}`,
       description: getProjectDescription(folderName, region, country),
-      coordinates: {
-        x: base.x + xOffset,
-        y: base.y + yOffset,
-      },
+      coordinates: [base[0] + latOffset, base[1] + lngOffset],
       cover: coverPath,
       media,
     })

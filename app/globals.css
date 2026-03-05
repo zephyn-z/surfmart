@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import 'leaflet/dist/leaflet.css';
+@import 'react-leaflet-cluster/dist/assets/MarkerCluster.css';
+@import 'react-leaflet-cluster/dist/assets/MarkerCluster.Default.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -122,4 +125,9 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Keep Leaflet panes below fixed site header */
+.leaflet-container {
+  z-index: 0;
 }
