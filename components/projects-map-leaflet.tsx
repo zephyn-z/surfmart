@@ -15,7 +15,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import type { ProjectData } from "@/components/projects-map"
+import type { ProjectData } from "./projects-map"
 
 const BLUR_DATA_URL =
   "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTYnIGhlaWdodD0nOScgdmlld0JveD0nMCAwIDE2IDknIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PHJlY3Qgd2lkdGg9JzE2JyBoZWlnaHQ9JzknIGZpbGw9JyNlNWU3ZWInLz48L3N2Zz4="
@@ -380,7 +380,7 @@ export function ProjectsMapLeaflet({
               <MarkerClusterGroup
                 key={country}
                 chunkedLoading
-                maxClusterRadius={48}
+                maxClusterRadius={10}
                 showCoverageOnHover={false}
                 zoomToBoundsOnClick
                 spiderfyOnMaxZoom
