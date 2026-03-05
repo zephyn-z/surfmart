@@ -12,7 +12,7 @@ const SOCIAL_ICONS = [
     id: "whatsapp",
     label: "WhatsApp",
     src: "/images/social/whatsapp.svg",
-    href: "https://www.linkedin.com/in/%E7%90%AA%E8%B5%9F-%E5%BC%A0-0565763b3/",
+    href: "https://wa.me/8618628145993",
     external: true,
   },
   {

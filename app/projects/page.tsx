@@ -44,6 +44,38 @@ const countryCoords: Record<string, { x: number; y: number }> = {
   australia: { x: 85, y: 80 },
 }
 
+const IMAGE_EXT_RE = /\.(jpg|jpeg|png|webp)$/i
+const MEDIA_EXT_RE = /\.(jpg|jpeg|png|webp|mp4)$/i
+const COVER_IMAGE_RE = /^cover\.(jpg|jpeg|png|webp)$/i
+
+function toProjectMediaPath(folderName: string, fileName: string) {
+  return `/images/projects/${encodeURIComponent(folderName)}/${encodeURIComponent(fileName)}`
+}
+
+const PROJECT_DESCRIPTION_MAP: Record<string, string> = {
+  "china-guangzhou-no4":
+    "This Guangzhou project delivers energetic sessions for both beginners and repeat riders in a modern leisure space.",
+  "china-nantong-no3":
+    "Built for family-friendly operations, the Nantong installation combines safe wave profiles with all-day fun.",
+  "china-shanghai-no1":
+    "A compact indoor setup that brings reliable daily surf training to a busy city venue.",
+  "china-shanghai-no2":
+    "Designed for high foot traffic, this Shanghai project pairs smooth rider flow with a strong first-time experience.",
+  "france-hyeres-no1":
+    "Installed near the coast, this Hyeres site adds an all-weather surf experience that keeps visitors engaged year-round.",
+  "germany-mettmann-no1":
+    "A performance-focused setup in Mettmann, optimized for stable operation and repeat training sessions.",
+  "thailand-chonburi-no1":
+    "Created for resort-style use, the Chonburi project offers an accessible wave experience from day to night.",
+}
+
+function getProjectDescription(folderName: string, region: string, country: string) {
+  return (
+    PROJECT_DESCRIPTION_MAP[folderName] ??
+    `A tailored ${region.toLowerCase()} installation in ${country}, built for reliable operation and a smooth rider experience.`
+  )
+}
+
 function toTitleCase(text: string) {
   return text
     .split("-")
@@ -90,21 +122,29 @@ async function getProjectsData(): Promise<ProjectData[]> {
     const allMedia = files
       .filter((file) => file.isFile())
       .map((file) => file.name)
-      .filter((fileName) => /\.(jpg|mp4)$/i.test(fileName.toLowerCase()))
+      .filter((fileName) => MEDIA_EXT_RE.test(fileName))
       .sort((a, b) => {
-        if (a.toLowerCase() === "cover.jpg") return -1
-        if (b.toLowerCase() === "cover.jpg") return 1
+        if (COVER_IMAGE_RE.test(a)) return -1
+        if (COVER_IMAGE_RE.test(b)) return 1
+        if (IMAGE_EXT_RE.test(a) && !IMAGE_EXT_RE.test(b)) return -1
+        if (!IMAGE_EXT_RE.test(a) && IMAGE_EXT_RE.test(b)) return 1
         return a.localeCompare(b)
       })
-    const coverFile = allMedia.find((file) => file.toLowerCase() === "cover.jpg")
-    const coverPath = `/images/projects/${folderName}/cover.jpg`
+    const coverFile =
+      allMedia.find((file) => COVER_IMAGE_RE.test(file)) ??
+      allMedia.find((file) => IMAGE_EXT_RE.test(file))
+    const coverPath = coverFile
+      ? toProjectMediaPath(folderName, coverFile)
+      : "/images/gallery/g1.jpg"
     const otherMedia = allMedia
-      .filter((file) => file.toLowerCase() !== "cover.jpg")
-      .map((file) => `/images/projects/${folderName}/${file}`)
-    const media = [coverPath, ...otherMedia]
+      .filter((file) => file !== coverFile)
+      .map((file) => toProjectMediaPath(folderName, file))
+    const media = coverFile ? [coverPath, ...otherMedia] : otherMedia
 
     if (!coverFile) {
-      console.warn(`Warning: project folder ${folderName} missing cover.jpg`)
+      console.warn(
+        `Warning: project folder ${folderName} missing cover image (cover.jpg/jpeg/png/webp)`
+      )
     }
 
     if (allMedia.length === 0) {
@@ -120,7 +160,7 @@ async function getProjectsData(): Promise<ProjectData[]> {
       country,
       region,
       location: `${region}, ${country}`,
-      description: `${country} temp`,
+      description: getProjectDescription(folderName, region, country),
       coordinates: {
         x: base.x + xOffset,
         y: base.y + yOffset,
