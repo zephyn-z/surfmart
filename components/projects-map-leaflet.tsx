@@ -323,6 +323,16 @@ export function ProjectsMapLeaflet({
   projectsData: ProjectData[]
 }) {
   const [activeProject, setActiveProject] = useState<ProjectData | null>(null)
+  const projectsByCountry = projectsData.reduce<Record<string, ProjectData[]>>(
+    (acc, project) => {
+      if (!acc[project.country]) {
+        acc[project.country] = []
+      }
+      acc[project.country].push(project)
+      return acc
+    },
+    {}
+  )
 
   const handleSelect = useCallback((project: ProjectData) => {
     setActiveProject((prev) => (prev?.id === project.id ? null : project))
@@ -366,22 +376,25 @@ export function ProjectsMapLeaflet({
 
             <MapClickHandler onMapClick={handleClose} />
 
-            <MarkerClusterGroup
-              chunkedLoading
-              maxClusterRadius={48}
-              showCoverageOnHover={false}
-              zoomToBoundsOnClick
-              spiderfyOnMaxZoom
-            >
-              {projectsData.map((project) => (
-                <ProjectMarker
-                  key={project.id}
-                  project={project}
-                  isSelected={activeProject?.id === project.id}
-                  onSelect={handleSelect}
-                />
-              ))}
-            </MarkerClusterGroup>
+            {Object.entries(projectsByCountry).map(([country, countryProjects]) => (
+              <MarkerClusterGroup
+                key={country}
+                chunkedLoading
+                maxClusterRadius={48}
+                showCoverageOnHover={false}
+                zoomToBoundsOnClick
+                spiderfyOnMaxZoom
+              >
+                {countryProjects.map((project) => (
+                  <ProjectMarker
+                    key={project.id}
+                    project={project}
+                    isSelected={activeProject?.id === project.id}
+                    onSelect={handleSelect}
+                  />
+                ))}
+              </MarkerClusterGroup>
+            ))}
           </MapContainer>
         </div>
 
